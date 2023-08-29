@@ -8,6 +8,8 @@ const initialState = {
   // loading, error, ready, active, finished
   status: 'loading',
   index: 0,
+  answer: null,
+  points: 0,
 };
 
 function reducer(state, action) {
@@ -18,13 +20,28 @@ function reducer(state, action) {
       return { ...state, status: 'error' };
     case 'startTest':
       return { ...state, status: 'test' };
+    case 'newAnswer':
+      const currentQuestion = state.questions.at(state.index);
+      return {
+        ...state,
+        answer: action.payload,
+        points:
+          action.payload === currentQuestion.correctOption
+            ? state.points + currentQuestion.points
+            : state.points,
+      };
+    case 'nextQuestion':
+      return {...state, index: state.index + 1, answer:null}
     default:
       throw new Error('Invalid action type');
   }
 }
 
 function App() {
-  const [{ questions, status, index }, dispatch] = useReducer(reducer, initialState);
+  const [{ questions, status, index, answer, points }, dispatch] = useReducer(
+    reducer,
+    initialState,
+  );
   const questionsNum = questions.length;
 
   useEffect(function () {
@@ -56,6 +73,9 @@ function App() {
             question={questions[index]}
             dispatch={dispatch}
             questionsNum={questionsNum}
+            answer={answer}
+            points={points}
+            index={index}
           />
         )}
       </main>
