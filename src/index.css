@@ -6,3 +6,7 @@
   font-family: Codystar;
   src: url("./fonts/Codystar-Regular.ttf") format("opentype");
 }
+
+body{
+  background-color: #343a40;
+}
