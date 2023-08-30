@@ -2,6 +2,7 @@ import { useEffect, useReducer } from 'react';
 import Header from './features/Header';
 import Home from './features/Home';
 import Questions from './features/Questions';
+import Button from './ui/Button';
 
 const initialState = {
   questions: [],
@@ -10,6 +11,7 @@ const initialState = {
   index: 0,
   answer: null,
   points: 0,
+  highscore: 0,
 };
 
 function reducer(state, action) {
@@ -31,18 +33,29 @@ function reducer(state, action) {
             : state.points,
       };
     case 'nextQuestion':
-      return {...state, index: state.index + 1, answer:null}
+      return { ...state, index: state.index + 1, answer: null };
+    case 'finishedTest':
+      return {
+        ...state,
+        status: 'finished',
+        highscore:
+          state.points > state.highscore ? state.points : state.highscore,
+      };
+    case 'testAgain':
+      return { ...initialState, questions: state.questions, status: 'ready' };
     default:
       throw new Error('Invalid action type');
   }
 }
 
 function App() {
-  const [{ questions, status, index, answer, points }, dispatch] = useReducer(
-    reducer,
-    initialState,
-  );
+  const [{ questions, status, index, answer, points, highscore }, dispatch] =
+    useReducer(reducer, initialState);
   const questionsNum = questions.length;
+  const maxPossiblePoints = questions.reduce(
+    (prev, cur) => prev + cur.points,
+    0,
+  );
 
   useEffect(function () {
     fetch('http://localhost:8000/questions')
@@ -56,12 +69,12 @@ function App() {
       <Header />
       <main className=" flex flex-col items-center justify-center">
         {status === 'error' && (
-          <p className="bg-dark text-light w-96 rounded-full p-4 text-center text-2xl ">
+          <p className="w-96 rounded-full bg-dark p-4 text-center text-2xl text-light ">
             🟠 There is an error
           </p>
         )}
         {status === 'loading' && (
-          <p className="bg-dark text-light w-96 rounded-full p-4 text-center text-2xl ">
+          <p className="w-96 rounded-full bg-dark p-4 text-center text-2xl text-light ">
             ⏳ Loading
           </p>
         )}
@@ -76,7 +89,20 @@ function App() {
             answer={answer}
             points={points}
             index={index}
+            questions={questions}
           />
+        )}
+        {status === 'finished' && (
+          <div className="flex flex-col items-center justify-center space-y-8">
+            <p className="mt-20 w-96 rounded-full bg-cyan py-5 text-center text-xl font-semibold text-light">
+              You scored {points} out of {maxPossiblePoints} (
+              {Math.ceil((points / maxPossiblePoints) * 100)}%)
+            </p>
+            <p className='text-lg text-light'>(Highscore: {highscore} points)</p>
+            <Button onClick={() => dispatch({ type: 'testAgain' })}>
+              Restart
+            </Button>
+          </div>
         )}
       </main>
     </>

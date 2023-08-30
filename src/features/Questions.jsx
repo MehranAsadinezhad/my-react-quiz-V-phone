@@ -1,36 +1,63 @@
 import React from 'react';
 import Option from '../ui/Option';
 import Button from '../ui/Button';
+import Progress from '../ui/Progress';
 
 export default function Questions({
-    question,
-    questionsNum,
-    dispatch,
-    answer,
-    points,
-    index
+  question,
+  questionsNum,
+  dispatch,
+  answer,
+  points,
+  index,
+  questions,
 }) {
-    return (
-        <div className="flex flex-col items-center justify-center">
-            <div className="flex flex-col items-center justify-center">
-                <div></div>
-                <div className="flex items-center justify-between space-x-16">
-                    <p className="text-medium text-lg">Question {index + 1} / {questionsNum}</p>
-                    <p className="text-medium text-lg">{points} / 280</p>
-                </div>
-            </div>
-            <div className="flex flex-col items-center justify-center">
-                <h1 className="text-light my-6 text-2xl font-semibold">
-                    {question.question}
-                </h1>
-                <Option question={question} answer={answer} dispatch={dispatch}/>
-                <div className='flex items-center justify-between space-x-16'>
-                    <p className="bg-darkest ring-dark text-medium my-5 rounded-full px-4 py-3 text-center text-lg ring-2">
-                        12:42
-                    </p>
-                    {answer !== null && <Button onClick={()=>dispatch({type:'nextQuestion'})}>Next</Button>}
-                </div>
-            </div>
+  const maxPossiblePoints = questions.reduce(
+    (prev, cur) => prev + cur.points,
+    0,
+  );
+  return (
+    <div className="flex flex-col items-center justify-center">
+      <div className="flex flex-col items-center justify-center">
+        <Progress questionsNum={questionsNum} index={index + 1}></Progress>
+        <div className="flex items-center justify-between space-x-16">
+          <p className="text-lg font-semibold text-medium">
+            Question {index + 1} / {questionsNum}
+          </p>
+          <p className="text-lg font-semibold text-medium">
+            {points} / {maxPossiblePoints}
+          </p>
         </div>
-    );
+      </div>
+      <div className="flex flex-col items-center justify-center">
+        <h1 className="my-6 text-2xl font-semibold text-light">
+          {question.question}
+        </h1>
+        <Option question={question} answer={answer} dispatch={dispatch} />
+        <div className="flex items-center justify-between space-x-16">
+          <p className="my-5 rounded-full bg-darkest px-4 py-3 text-center text-lg text-medium ring-2 ring-dark">
+            12:42
+          </p>
+          {answer !== null && index < questionsNum -1 && (
+            <Button
+              index={index}
+              questionsNum={questionsNum}
+              onClick={() => dispatch({ type: 'nextQuestion' })}
+            >
+              Next
+            </Button>
+          )}
+          {index === questionsNum - 1 && (
+            <Button
+              index={index}
+              questionsNum={questionsNum}
+              onClick={() => dispatch({ type: 'finishedTest' })}
+            >
+              Finish
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
