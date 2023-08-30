@@ -24,7 +24,7 @@ export default function Questions({
     <div className="flex flex-col items-center justify-center">
       <div className="flex flex-col items-center justify-center">
         <Progress questionsNum={questionsNum} index={index + 1}></Progress>
-        <div className="flex items-center justify-between space-x-16">
+        <div className="flex items-center justify-between w-64 md:w-96">
           <p className="text-lg font-semibold text-medium">
             Question {index + 1} / {questionsNum}
           </p>
@@ -34,11 +34,11 @@ export default function Questions({
         </div>
       </div>
       <div className="flex flex-col items-center justify-center">
-        <h1 className="my-6 text-2xl font-semibold text-light">
+        <h1 className="my-6 sm:mx-4 lg:tracking-wider lg:text-2xl sm:text-xl text-center font-semibold text-light">
           {question.question}
         </h1>
         <Option question={question} answer={answer} dispatch={dispatch} />
-        <div className="flex items-center justify-between w-96">
+        <div className="flex items-center justify-between w-52 md:w-96">
           <Timer dispatch={dispatch}>
             {min < 10 && 0}
             {min}:{sec < 10 && 0}
@@ -53,7 +53,7 @@ export default function Questions({
               Next
             </Button>
           )}
-          {index === questionsNum - 1 && (
+          {index === questionsNum - 1 && answer !== null && (
             <Button
               index={index}
               questionsNum={questionsNum}

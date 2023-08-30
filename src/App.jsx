@@ -13,6 +13,7 @@ const initialState = {
   points: 0,
   highscore: 0,
   secondsRemaining: null,
+  error: null,
 };
 
 function reducer(state, action) {
@@ -20,7 +21,7 @@ function reducer(state, action) {
     case 'dataReceived':
       return { ...state, questions: action.payload, status: 'ready' };
     case 'dataFailed':
-      return { ...state, status: 'error' };
+      return { ...state, status: 'error', error: action.payload };
     case 'startTest':
       const t = 30;
       return {
@@ -62,7 +63,7 @@ function reducer(state, action) {
 
 function App() {
   const [
-    { questions, status, index, answer, points, highscore, secondsRemaining },
+    { questions, status, index, answer, points, highscore, secondsRemaining,error },
     dispatch,
   ] = useReducer(reducer, initialState);
   const questionsNum = questions.length;
@@ -75,7 +76,7 @@ function App() {
     fetch('http://localhost:8000/questions')
       .then((res) => res.json())
       .then((data) => dispatch({ type: 'dataReceived', payload: data }))
-      .catch((err) => dispatch({ type: 'dataFailed' }));
+      .catch((err) => dispatch({ type: 'dataFailed', payload: err.message }));
   }, []);
 
   return (
@@ -84,7 +85,7 @@ function App() {
       <main className=" flex flex-col items-center justify-center">
         {status === 'error' && (
           <p className="w-96 rounded-full bg-dark p-4 text-center text-2xl text-light ">
-            🟠 There is an error
+            🟠 {error}
           </p>
         )}
         {status === 'loading' && (
@@ -109,7 +110,7 @@ function App() {
         )}
         {status === 'finished' && (
           <div className="flex flex-col items-center justify-center space-y-8">
-            <p className="mt-20 w-96 rounded-full bg-cyan py-5 text-center text-xl font-semibold text-light">
+            <p className="mt-20 w-64 md:w-96 rounded-full bg-cyan py-1 md:py-5 text-center md:text-xl font-semibold text-light">
               You scored {points} out of {maxPossiblePoints} (
               {Math.ceil((points / maxPossiblePoints) * 100)}%)
             </p>
